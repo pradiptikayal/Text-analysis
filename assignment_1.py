@@ -22,39 +22,43 @@ for text in soup.find_all("div",attrs={"id":"menuwrapper"}):
   for x in text.find_all('a'):
     full_link = x.get("href")
     if full_link.find('page')>0 or full_link.find('tutorial')>0:
-    	#print(full_link)
+    	print(full_link)
     	page_links.append(full_link)
 
 page_links.append(url)    	
-print(page_links)
+#print(page_links)
 def tag_visible(element):
 	if element.parent.name in ['style' , 'script' , 'meta' , '[document]']:
 		return False
 	if isinstance(element,Comment):
 		return False
 	return True
- 
+i=0
 for link in page_links:
           if link.find("page")>0:
                   soup = url_open(str(link))
                   table = soup.find_all('div',attrs={"class":"content-inner grid_9 push_3"})
                   #text=filter(tag_visible,table)
+                  file1=open("file"+str(i)+".txt",'w')
                   for x in table:
                           string = x.text.encode('utf-8')
                           data.append(''.join( c for c in string if  c not in '\n\t\xa9'))
-                  
-	      
+                          file1.write(''.join( c for c in string if  c not in '\n\t\xa9'))
+                  file1.close()
+                  i = i+1
+puncts = [',','.','?',':',';','/','[',']','{','}','(',')']	      
 #print data
 #print type(data)     
 #remove stopwords
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize 
-str1 = ''.join(str(e) for e in data)
+str1 = ''.join(str(e)for e in data)
 #print type(str1)
 import ast
 tokens= word_tokenize(str1.decode('utf-8'))
-filtered_words = [w for w in tokens if not w in stopwords.words('english')]
-print filtered_words
+filtered_words = [w.encode('utf-8') for w in tokens if w not in stopwords.words('english')]
+filtere = [w for w in filtered_words if w not in puncts]
+print filtere
 
 
 
@@ -77,6 +81,7 @@ def inverse_document_frequencies(tokenized_documents):
 
 def tfidf(documents):
     tokenized_documents = [tokenize(d) for d in documents]
+    #print(tokenized_documents)
     idf = inverse_document_frequencies(tokenized_documents)
     tfidf_documents = []
     for document in tokenized_documents:
@@ -85,6 +90,7 @@ def tfidf(documents):
             tf = sublinear_term_frequency(term, document)
             doc_tfidf.append(tf * idf[term])
         tfidf_documents.append(doc_tfidf)
+    #print(tfidf_documents)    
     return tfidf_documents
 
 
